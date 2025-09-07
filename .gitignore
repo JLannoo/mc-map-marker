@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Object files
+*.o
+
+# Build directories
+build/
+public/wasm/

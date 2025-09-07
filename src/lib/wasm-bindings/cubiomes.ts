@@ -21,20 +21,3 @@ export function fetchChunkData(seed: bigint, x: number, z: number, y: number = 1
 
     return rgbArray;
 }
-
-export function drawChunkData(canvas: HTMLCanvasElement, chunkData: Uint8Array, chunkX: number, chunkY: number) {
-    const ctx = canvas.getContext("2d");
-    if(!ctx) throw new Error("Could not get 2D context from canvas");
-    
-    for(let i = 0; i < chunkData.byteLength/3; i++) {
-        const r = chunkData[i*3  ];
-        const g = chunkData[i*3+1];
-        const b = chunkData[i*3+2];
-        
-        const x = i%64 + chunkX*64;
-        const y = Math.floor(i/64) - chunkY*64;
-        
-        ctx.fillStyle = `rgb(${r},${g},${b})`;
-        ctx.fillRect(x, -y, 1, 1);
-    }
-}

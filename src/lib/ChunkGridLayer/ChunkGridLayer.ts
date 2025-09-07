@@ -1,12 +1,18 @@
 import L from "leaflet";
 
 import { fetchChunkData } from "../wasm-bindings/cubiomes";
+import CHUNKS from "@/consts/CHUNKS";
+import LEAFLET from "@/consts/LEAFLET";
 
 export const ChunkGridLayer = L.GridLayer.extend({
     createTile: function(coords: L.Coords) {
-        const tile = generateChunkTile(1234567890123456789n, coords.x, -coords.y, coords.z, 512);
+        // coords is in SCREENSPACE coordinates (top-left is X=0, Y=0 increasing right and down)
+        // Z is the zoom level
+        const tile = generateChunkTile(1234567890123456789n, coords.x, -coords.y);
         return tile;
     },
+}).mergeOptions({
+    tileSize: LEAFLET.TILE_SIZE,
 });
 
 function generateChekeredTile(coords: L.Coords, size: number): HTMLCanvasElement {
@@ -34,15 +40,15 @@ function generateChekeredTile(coords: L.Coords, size: number): HTMLCanvasElement
     return canvas;
 }
 
-export function generateChunkTile(seed: bigint, chunkX: number, chunkY: number, chunkZ: number, size: number = 512): HTMLCanvasElement {
+export function generateChunkTile(seed: bigint, chunkX: number, chunkZ: number, yLevel: number = 15): HTMLCanvasElement {
     const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
+    canvas.width = LEAFLET.TILE_SIZE;
+    canvas.height = LEAFLET.TILE_SIZE;
     const ctx = canvas.getContext('2d');
     if (!ctx) return canvas;
 
-    const chunkData = fetchChunkData(seed, chunkX, chunkY, chunkZ, 4);
-    const imageData = ctx.createImageData(64, 64);
+    const chunkData = fetchChunkData(seed, chunkX, chunkZ, yLevel, CHUNKS.PIXEL_PER_BLOCK);
+    const imageData = ctx.createImageData(LEAFLET.TILE_SIZE, LEAFLET.TILE_SIZE);
 
     for (let i = 0; i < 64 * 64; i++) {
         imageData.data[i * 4 + 0] = chunkData[i * 3 + 0]; // R
@@ -53,16 +59,16 @@ export function generateChunkTile(seed: bigint, chunkX: number, chunkY: number, 
 
     ctx.putImageData(imageData, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(canvas, 0, 0, 64, 64, 0, 0, size, size);
+    ctx.drawImage(canvas, 0, 0, 64, 64, 0, 0, LEAFLET.TILE_SIZE, LEAFLET.TILE_SIZE);
 
-    drawTextOnTile(ctx, `(${chunkZ}, ${chunkX}, ${chunkY})`, size, 'white');
-    canvas.style.border = "1px solid rgba(255,255,255,0.01)"
+    // drawTextOnTile(ctx, `(${chunkZ}, ${chunkX}, ${chunkY})`, size, 'white');
+    // canvas.style.border = "1px solid rgba(255,255,255,0.01)"
     return canvas;
 }
 
 function drawTextOnTile(ctx: CanvasRenderingContext2D, text: string, size: number, color: string = 'black') {
     ctx.fillStyle = color;
-    ctx.font = '32px Arial';
+    ctx.font = '12px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(text, size / 2, size / 2);

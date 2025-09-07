@@ -1,11 +1,11 @@
-import { createRef, useEffect, type RefObject } from "react";
+import { createRef, useEffect, type RefObject } from 'react';
 
-import leaflet from "leaflet";
-import "leaflet/dist/leaflet.css";
+import leaflet from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-import { ChunkGridLayer } from "../../lib/ChunkGridLayer/ChunkGridLayer";
+import { ChunkGridLayer } from '../../lib/ChunkGridLayer/ChunkGridLayer';
 
-import { create } from "zustand";
+import { create } from 'zustand';
 
 // ===== STORE =====
 interface LeafletStore {
@@ -17,43 +17,43 @@ interface LeafletStore {
 }
 
 export const useLeafletStore = create<LeafletStore>((set) => ({
-    map: null,
-    setMap: (map: leaflet.Map) => set({ map }),
+	map: null,
+	setMap: (map: leaflet.Map) => set({ map }),
 
-    containerRef: createRef<HTMLDivElement>(),
-    setContainerRef: (containerRef: RefObject<HTMLDivElement>) => set({ containerRef }),
+	containerRef: createRef<HTMLDivElement>(),
+	setContainerRef: (containerRef: RefObject<HTMLDivElement>) => set({ containerRef }),
 }));
 
 // ===== COMPONENT =====
 const TILE_LAYER = new ChunkGridLayer();
 const MAP_CONFIG: leaflet.MapOptions = {
-    crs: leaflet.CRS.Simple,
-    maxZoom: 8,
-    minZoom: 0,
+	crs: leaflet.CRS.Simple,
+	maxZoom: 8,
+	minZoom: 0,
 };
 
 export default function Leaflet() {
-    const { containerRef, setMap, map } = useLeafletStore();
+	const { containerRef, setMap, map } = useLeafletStore();
     
-    function initializeMap() {
-        // Check if the map is already initialized (mostly for StrictMode in dev)
-        if (containerRef?.current && !containerRef.current.hasChildNodes()) {
-            const m = leaflet.map(containerRef.current, MAP_CONFIG)
-                .setView([0,0], 0);
+	function initializeMap() {
+		// Check if the map is already initialized (mostly for StrictMode in dev)
+		if (containerRef?.current && !containerRef.current.hasChildNodes()) {
+			const m = leaflet.map(containerRef.current, MAP_CONFIG)
+				.setView([0,0], 0);
             
-            TILE_LAYER.addTo(m);
+			TILE_LAYER.addTo(m);
 
-            setMap(m);
-        }
+			setMap(m);
+		}
 
-        return () => {
-            if (containerRef) map?.remove();
-        };
-    }
+		return () => {
+			if (containerRef) map?.remove();
+		};
+	}
 
-    useEffect(initializeMap, []);
+	useEffect(initializeMap, []);
 
-    return (
-        <div ref={containerRef} style={{ height: "100vh", width: "100vw" }}></div>
-    );
+	return (
+		<div ref={containerRef} style={{ height: '100vh', width: '100vw' }}></div>
+	);
 }

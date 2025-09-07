@@ -1,63 +1,63 @@
-import leaflet from "leaflet";
+import leaflet from 'leaflet';
 
-import Leaflet, { useLeafletStore } from "./components/Leaflet/Leaflet";
+import Leaflet, { useLeafletStore } from './components/Leaflet/Leaflet';
 
-import { Button } from "./components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "./components/ui/card";
-import { Input } from "./components/ui/input";
-import { Label } from "@radix-ui/react-label";
+import { Button } from './components/ui/button';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
+import { Input } from './components/ui/input';
+import { Label } from '@radix-ui/react-label';
 
 export default function App() {
-    const { map } = useLeafletStore();
+	const { map } = useLeafletStore();
     
-    return (
-        <div>
-            <Leaflet />
+	return (
+		<div>
+			<Leaflet />
 
-            <Card className="absolute top-4 right-4 w-75 z-1000">
-                <CardHeader>
-                    <CardTitle>Add marker</CardTitle>
-                    <CardDescription>Input the coordinates to add a marker</CardDescription>
-                </CardHeader>
+			<Card className="absolute top-4 right-4 w-75 z-1000">
+				<CardHeader>
+					<CardTitle>Add marker</CardTitle>
+					<CardDescription>Input the coordinates to add a marker</CardDescription>
+				</CardHeader>
 
-                <CardContent>
-                    <form className="flex flex-col gap-4"
-                        onSubmit={(e) => {
-                            e.preventDefault();
+				<CardContent>
+					<form className="flex flex-col gap-4"
+						onSubmit={(e) => {
+							e.preventDefault();
 
-                            const form = e.target as HTMLFormElement;
-                            const formData = new FormData(form);
+							const form = e.target as HTMLFormElement;
+							const formData = new FormData(form);
 
-                            const x = Number(formData.get("x"));
-                            const z = Number(formData.get("z"));
-                            const state = String(formData.get("state"));
+							const x = Number(formData.get('x'));
+							const z = Number(formData.get('z'));
+							const state = String(formData.get('state'));
 
-                            if (map) {
-                                const marker = leaflet.marker([-z, x]).addTo(map);
-                                marker.bindPopup(`<div><strong>State:</strong> ${state}<br/><strong>Coordinates:</strong> (${x}, ${z})</div>`).openPopup();
-                                form.reset();
-                            }
-                        }}
-                    >
-                        <div className="flex gap-4 justify-between items-center">
-                            <Label htmlFor="x">X</Label>
-                            <Input name="x" id="x" type="number" defaultValue={0} />
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <Label htmlFor="z">Z</Label>
-                            <Input name="z" id="z" type="number" defaultValue={0} />
-                        </div>
-                        <div className="flex gap-4 justify-between items-center">
-                            <Label htmlFor="state">State</Label>
-                            <Input name="state" id="state" type="text" defaultValue="Example state" />
-                        </div>
+							if (map) {
+								const marker = leaflet.marker([-z, x]).addTo(map);
+								marker.bindPopup(`<div><strong>State:</strong> ${state}<br/><strong>Coordinates:</strong> (${x}, ${z})</div>`).openPopup();
+								form.reset();
+							}
+						}}
+					>
+						<div className="flex gap-4 justify-between items-center">
+							<Label htmlFor="x">X</Label>
+							<Input name="x" id="x" type="number" defaultValue={0} />
+						</div>
+						<div className="flex gap-4 justify-between items-center">
+							<Label htmlFor="z">Z</Label>
+							<Input name="z" id="z" type="number" defaultValue={0} />
+						</div>
+						<div className="flex gap-4 justify-between items-center">
+							<Label htmlFor="state">State</Label>
+							<Input name="state" id="state" type="text" defaultValue="Example state" />
+						</div>
 
-                        <CardAction className="self-end">
-                            <Button type="submit">Add</Button>
-                        </CardAction>
-                    </form>
-                </CardContent>
-            </Card>
-        </div>
-    );
+						<CardAction className="self-end">
+							<Button type="submit">Add</Button>
+						</CardAction>
+					</form>
+				</CardContent>
+			</Card>
+		</div>
+	);
 }

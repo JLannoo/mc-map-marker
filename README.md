@@ -1,69 +1,54 @@
-# React + TypeScript + Vite
+# MC Map Marker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Table of Contents
+- [About](#about)
+- [How to clone](#how-to-clone)
+- [How to build](#how-to-build)
+- [Important Notes](#important-notes)
+- [External Docs](#external-docs)
 
-Currently, two official plugins are available:
+## About
+MC Map Marker is a web application for visualizing and marking Minecraft worlds using Leaflet and WASM bindings to native biome-finding code.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## How to Clone
+```sh
+git clone --recurse-submodules https://github.com/JLannoo/mc-map-marker.git
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## How to Build
+- **Build WASM:**
+  - Ensure you have Emscripten installed for building WASM from C code.
+  - Ensure you got the Cubiomes submodule from git.
+  - Run the build script or use the provided Makefile in `cubiomes/` and `wasm/`.
+    ```sh
+    emmake make
+    ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Start the development server:**
+  ```sh
+  npm run dev
+  ```
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- **Build for production:**
+  Runs both Vite build and Make
+  ```sh
+  npm run build
+  ```
+
+## Important Notes
+### WASM
+  - Bindings must be renamed if the function name changes in the C source file.
+  - Declare modules extending `window` for Typescript to be able to see them.
+  - ...
+
+
+## External Docs
+### Frontend
+  - [Leaflet](https://leafletjs.com/)
+  - [Zustand](https://github.com/pmndrs/zustand)
+  - [shadcn UI](https://ui.shadcn.com/)
+  - [TailwindCSS](http://tailwindcss.com/docs/)
+### WASM / C
+- [Cubiomes library](https://github.com/Cubitect/cubiomes)
+- [Compiling C to WASM (MDN)](https://developer.mozilla.org/en-US/docs/WebAssembly/Guides/C_to_Wasm)
+- [Emscripten](https://emscripten.org/)

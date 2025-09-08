@@ -13,6 +13,7 @@ export const ChunkGridLayer = L.GridLayer.extend({
 	},
 }).mergeOptions({
 	tileSize: LEAFLET.TILE_SIZE,
+	attribution: '<a href="https://github.com/cubitect/cubiomes" target="_blank" rel="noreferrer">Cubiomes</a> map generation',
 });
 
 function _generateChekeredTile(coords: L.Coords, size: number): HTMLCanvasElement {

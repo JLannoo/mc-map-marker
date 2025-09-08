@@ -2,6 +2,7 @@ import { createRef, useEffect, type RefObject } from 'react';
 
 import leaflet from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import './leaflet.overrides.css';
 
 import { ChunkGridLayer } from '../../lib/ChunkGridLayer/ChunkGridLayer';
 

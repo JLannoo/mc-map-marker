@@ -25,12 +25,14 @@ wasm: cubiomes
 # Step 2 - Link with static lib
 # Step 3 - Export runtime methods, HEAPU8 for memory access, ccall for calling C functions
 # Step 4 - Allow memory growth (optional, but useful for dynamic memory needs)
-	emcc -O3 -o ./public/$(FILENAME).js $(FILENAME).o cubiomes/libcubiomes.a \
+	emcc -O3 -o ./src/lib/$(FILENAME).js $(FILENAME).o cubiomes/libcubiomes.a \
 		-s EXPORTED_RUNTIME_METHODS='["HEAPU8", "ccall"]' \
 		-s EXPORT_NAME='CubiomesCreateModule' \
 		-s MODULARIZE=1 \
+		-s EXPORT_ES6=1 \
+		-s USE_ES6_IMPORT_META=1 \
 		-s ALLOW_MEMORY_GROWTH=1
 
 clean:
-	$(RM) -f wasm/*.o public/$(FILENAME).mjs
+	$(RM) -f wasm/*.o src/lib/$(FILENAME).js
 	$(MAKE) -C cubiomes clean

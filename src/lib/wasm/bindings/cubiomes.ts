@@ -1,8 +1,7 @@
-const module = await window.CubiomesCreateModule();
-console.log('Loading WASM Module...');
+import CubiomesCreateModule from '../cubiomes.js';
 
-if(!module) throw new Error('WASM Module not loaded');
-console.log('WASM Module loaded:', module);
+// @ts-expect-error Ignore missing types for the wasm module
+const module = await CubiomesCreateModule();
 
 export function fetchChunkData(seed: bigint, x: number, z: number, y: number = 15, pix4cell: number = 4): Uint8Array {
 	const bufferPointer = module.ccall(

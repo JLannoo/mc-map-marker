@@ -26,6 +26,9 @@ dist-ssr
 # Object files
 *.o
 
+# Emscripten output
+src/lib/wasm/*.js
+src/lib/wasm/*.wasm
+
 # Build directories
 build/
-public/wasm/

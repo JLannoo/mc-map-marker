@@ -2,27 +2,29 @@ import { createRef, useEffect, type RefObject } from 'react';
 
 import leaflet from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+// Override default leaflet styles to match shadcn/ui
 import './leaflet.overrides.css';
 
 import { ChunkGridLayer } from '../../lib/ChunkGridLayer/ChunkGridLayer';
 
 import { create } from 'zustand';
 
-// ===== STORE =====
 interface LeafletStore {
     map: leaflet.Map | null;
     containerRef: RefObject<HTMLDivElement | null>;
 
     setMap: (map: leaflet.Map) => void;
-    setContainerRef: (container: RefObject<HTMLDivElement>) => void;
 }
 
+/**
+ * Store to manage the Leaflet map instance and its container reference.
+ */
 export const useLeafletStore = create<LeafletStore>((set) => ({
 	map: null,
 	setMap: (map: leaflet.Map) => set({ map }),
 
 	containerRef: createRef<HTMLDivElement>(),
-	setContainerRef: (containerRef: RefObject<HTMLDivElement>) => set({ containerRef }),
 }));
 
 // ===== COMPONENT =====
@@ -33,6 +35,11 @@ const MAP_CONFIG: leaflet.MapOptions = {
 	minZoom: 0,
 };
 
+/**
+ * Leaflet map component that initializes the map and provides a container for it.
+ * 
+ * Generated using {@link ChunkGridLayer} to display map tiles.
+ */
 export default function Leaflet() {
 	const { containerRef, setMap, map } = useLeafletStore();
     

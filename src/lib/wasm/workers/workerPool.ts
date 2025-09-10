@@ -15,6 +15,10 @@ type ChunkResponse = {
   error?: string;
 };
 
+/**
+ * A pool to manage request to web workers.
+ * Each worker is expected to respond with messages containing the same `id` as the request.
+ */
 export class WorkerPool {
 	private workers: Worker[] = [];
 	private ready: boolean[] = [];
@@ -58,27 +62,32 @@ export class WorkerPool {
 		return typeof v === 'object' && v !== null && ('ready' in v);
 	}
 
+	// TODO: support generic requests instead of just chunk requests
 	request(seed: bigint, x: number, z: number, y: number = 15, pix4cell: number = 4): Promise<ArrayBuffer> {
 		const id = this.nextId++;
 		// pick a worker round-robin
 		const worker = this.workers[this.nextWorker];
 		this.nextWorker = (this.nextWorker + 1) % this.workers.length;
 
-		// ensure at least the selected worker (or any worker) is ready. Wait up to 1s.
+		// wait for at least one worker to be ready
+		const timeoutMs = 2000;
 		const waitForReady = () => new Promise<void>((resolve) => {
 			const start = performance.now();
+
 			if (this.ready.some(Boolean)) return resolve();
+
 			const iv = setInterval(() => {
 				if (this.ready.some(Boolean)) {
 					clearInterval(iv);
 					resolve();
 					return;
 				}
-				if (performance.now() - start > 1000) { // timeout fallback
+
+				if (performance.now() - start > timeoutMs) { // timeout fallback
 					clearInterval(iv);
 					resolve();
 				}
-			}, 20);
+			}, 100);
 		});
 
 		const req: ChunkRequest = { id, seed, x, z, y, pix4cell };

@@ -2,12 +2,16 @@ import L from 'leaflet';
 
 import { getChunkgenWorkerPool } from '../wasm/workers/workerPool';
 
-
 import LEAFLET from '@/consts/LEAFLET';
 
+/**
+ * A Leaflet GridLayer that generates and displays map tiles, using the Cubiomes WASM module, on a canvas.
+ * 
+ * Tiles are generated asynchronously in a pool of web workers.
+ * If a worker fails, a fallback checkerboard tile is displayed.
+ */
 export const ChunkGridLayer = L.GridLayer.extend({
 	createTile: function(coords: L.Coords, done: L.DoneCallback): HTMLCanvasElement {
-		// create an empty canvas and kick off async generation in a worker
 		const canvas = document.createElement('canvas');
 		canvas.width = LEAFLET.TILE_SIZE;
 		canvas.height = LEAFLET.TILE_SIZE;
@@ -17,12 +21,18 @@ export const ChunkGridLayer = L.GridLayer.extend({
 		const pool = getChunkgenWorkerPool();
 		const seed = 1234567890123456789n;
 		const chunkX = coords.x;
-		const chunkZ = -coords.y;		
+		const chunkZ = -coords.y;
 
-		// fire request: when data arrives, paint the canvas
+		// Fire request: when data arrives, paint the canvas
 		pool.request(seed, chunkX, chunkZ).then((buffer) => {
+			// TODO: Investigate how to improve performance.
+			// Potential:
+			// - Use OffscreenCanvas in the worker to draw directly there (not supported in all browsers)
+			// - Use ImageBitmap to transfer the image data more efficiently
+			// - Delegate generation to a dedicated GPU worker (WebGL / WebGPU)
+			// - Delegate generation to WASM
 			const rgb = new Uint8Array(buffer);
-			const imageData = ctx.createImageData(64, 64);
+			const imageData = ctx.createImageData(LEAFLET.TILE_SIZE, LEAFLET.TILE_SIZE);
 
 			for (let i = 0; i < 64 * 64; i++) {
 				imageData.data[i * 4 + 0] = rgb[i * 3 + 0];

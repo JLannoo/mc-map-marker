@@ -37,9 +37,24 @@ git clone --recurse-submodules https://github.com/JLannoo/mc-map-marker.git
 
 ## Important Notes
 ### WASM
+  - If you use VSCode: when you install Emscripten, make sure you add the `${emscripten_root}/upstream/emscripten/system/include` folder to your workspace's includePath in `c_cpp_properties.json`. This will make VSCode aware of the Emscripten-specific headers.
   - Bindings must be renamed if the function name changes in the C source file.
   - Declare modules extending `window` for Typescript to be able to see them.
-  - ...
+  - The JS/WASM bindings consumed by the frontend are under `src/lib/wasm/` (for example `cubiomes.js`, `cubiomes.wasm`, and `cubiomes.d.ts`). When you rebuild the WASM, ensure these files are updated and the `.d.ts` matches the exported function names.
+    - They get store there so Vite can bundle them correctly with the rest of the frontend code.
+
+### Map and coordinate conventions
+
+- Minecraft has the origin (0,0) at the middle, while Leaflet has it at the bottom-left (y towards the top), so the MC z coordinate must be flipped.  
+- Leaflet uses (x, y) coordinates while Minecraft uses (x, z), because Y is vertical, but while rendering a plane we only care about a single value.  
+The mapping ends up being: MC (x, z) -> Leaflet (-z, x)
+
+### Dev / Debugging tips
+
+- Common Emscripten build issues:
+  - Ensure your shell has the Emscripten environment sourced (the `emcc`/`emmake` commands must be on PATH).
+  - If the make step cannot find headers, verify the include path and that `emsdk` was activated for the current shell.
+- If the frontend complains about missing `cubiomes.js`/`.wasm`, confirm you ran `emmake make` and the output was copied/available in `src/lib/wasm/` or adjust imports.
 
 
 ## External Docs

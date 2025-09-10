@@ -1,3 +1,8 @@
+/**
+ * This web worker handles chunk generation requests using the Cubiomes WASM module.
+ * Must be generally called via a WorkerPool to manage multiple workers.
+ */
+
 import { fetchChunkData } from '../bindings/cubiomes';
 
 type Req = {
@@ -18,6 +23,7 @@ type Res = {
 // notify main thread that worker (and wasm module) is initialized and ready to accept requests
 self.postMessage({ ready: true });
 
+// TODO: handle different message types
 self.addEventListener('message', (ev) => {
 	try {
 		const msg = ev.data as Req;

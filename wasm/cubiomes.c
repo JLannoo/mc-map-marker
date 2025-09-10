@@ -16,12 +16,17 @@ unsigned char* fetchChunkData(uint64_t seed, int chunkX, int chunkZ, int y, int 
     applySeed(&generator, DIM_OVERWORLD, seed);
 
     Range range;
-    range.scale = 16;
+    // Possible scale values [1, 4, 16, 64]
+    range.scale = 1;
+
     range.x = chunkX * 16;
     range.z = chunkZ * 16;
+
     range.sx = 16;
     range.sz = 16;
-    range.y = y;
+
+    // Y uses a scale of 4:1 except when range.scale = 1
+    range.y = 64;
     range.sy = 1;
 
     int *biomeIds = allocCache(&generator, range);

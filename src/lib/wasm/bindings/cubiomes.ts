@@ -1,13 +1,12 @@
 import CubiomesCreateModule from '../cubiomes.js';
 
-// @ts-expect-error Ignore missing types for the wasm module
 const module = await CubiomesCreateModule();
 
 export function fetchChunkData(seed: bigint, x: number, z: number, y: number = 15, pix4cell: number = 4): Uint8Array {
 	const bufferPointer = module.ccall(
 		'fetchChunkData', // name of C function
 		'number', // return type
-		['number', 'number', 'number', 'number', 'number'], // argument types
+		['bigint', 'number', 'number', 'number', 'number'], // argument types
 		[seed, x, z, y, pix4cell] // arguments
 	);
     

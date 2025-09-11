@@ -12,6 +12,7 @@ type Req = {
   z: number;
   y?: number;
   pix4cell?: number;
+  zoomLevel?: number;
 };
 
 type Res = {
@@ -27,9 +28,9 @@ self.postMessage({ ready: true });
 self.addEventListener('message', (ev) => {
 	try {
 		const msg = ev.data as Req;
-		const { id, seed, x, z, y = 15, pix4cell = 4 } = msg;
+		const { id, seed, x, z, y = 15, pix4cell = 4, zoomLevel = 4 } = msg;
 
-		const rgb = fetchChunkData(seed as bigint, x, z, y, pix4cell);
+		const rgb = fetchChunkData(seed as bigint, x, z, y, pix4cell, zoomLevel);
 		
 		// Transfer the underlying buffer to avoid cloning large arrays
 		const copy = new Uint8Array(rgb.length);

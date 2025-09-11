@@ -4,8 +4,19 @@
 #include "stdio.h"
 #include "emscripten/emscripten.h"
 
+int mapZoomLevel(int zoomLevel) {
+    // Map zoom level to scale factor
+    // Zoom Level: 0-1 -> Scale: 64
+    // Zoom Level: 2-3-4 -> Scale: 16
+    // Zoom Level: 5-6 -> Scale: 4
+    // Zoom Level: 7-8 -> Scale: 1
+    return zoomLevel <= 1 ? 64 :
+           zoomLevel <= 4 ? 16 :
+           zoomLevel <= 6 ? 4 : 1;
+}
+
 extern EMSCRIPTEN_KEEPALIVE
-unsigned char* fetchChunkData(uint64_t seed, int chunkX, int chunkZ, int y, int pix4cell) {
+unsigned char* fetchChunkData(uint64_t seed, int chunkX, int chunkZ, int y, int pix4cell, int zoomLevel) {
     if(seed == 0){
         return NULL;
     }
@@ -17,16 +28,19 @@ unsigned char* fetchChunkData(uint64_t seed, int chunkX, int chunkZ, int y, int 
 
     Range range;
     // Possible scale values [1, 4, 16, 64]
-    range.scale = 1;
+    range.scale = mapZoomLevel(zoomLevel);
+    printf("Using scale: %d for zoom level: %d\n", range.scale, zoomLevel);
 
+    // Chunk coordinates to block coordinates
     range.x = chunkX * 16;
     range.z = chunkZ * 16;
 
+    // Generate a 16x16 area (1 chunk)
     range.sx = 16;
     range.sz = 16;
 
     // Y uses a scale of 4:1 except when range.scale = 1
-    range.y = 64;
+    range.y = range.scale == 1 ? y : y / 4;
     range.sy = 1;
 
     int *biomeIds = allocCache(&generator, range);
@@ -35,6 +49,8 @@ unsigned char* fetchChunkData(uint64_t seed, int chunkX, int chunkZ, int y, int 
 
     int imgWidth = range.sx * pix4cell;
     int imgHeight = range.sz * pix4cell;
+
+    
 
     unsigned char biomeColors[256][3];
     initBiomeColors(biomeColors);

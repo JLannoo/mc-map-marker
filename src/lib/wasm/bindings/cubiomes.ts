@@ -2,12 +2,12 @@ import CubiomesCreateModule from '../cubiomes.js';
 
 const module = await CubiomesCreateModule();
 
-export function fetchChunkData(seed: bigint, x: number, z: number, y: number = 15, pix4cell: number = 4): Uint8Array {
+export function fetchChunkData(seed: bigint, x: number, z: number, y: number = 15, pix4cell: number = 4, zoomLevel: number = 4): Uint8Array {
 	const bufferPointer = module.ccall(
 		'fetchChunkData', // name of C function
 		'number', // return type
-		['bigint', 'number', 'number', 'number', 'number'], // argument types
-		[seed, x, z, y, pix4cell] // arguments
+		['bigint', 'number', 'number', 'number', 'number', 'number'], // argument types
+		[seed, x, z, y, pix4cell, zoomLevel] // arguments
 	);
     
 	// if(bufferPointer === 0) throw new Error("Error fetching chunk data from wasm module");

@@ -7,6 +7,7 @@ type ChunkRequest = {
   z: number;
   y?: number;
   pix4cell?: number;
+  zoomLevel?: number;
 };
 
 type ChunkResponse = {
@@ -63,7 +64,7 @@ export class WorkerPool {
 	}
 
 	// TODO: support generic requests instead of just chunk requests
-	request(seed: bigint, x: number, z: number, y: number = 15, pix4cell: number = 4): Promise<ArrayBuffer> {
+	request(seed: bigint, x: number, z: number, y: number = 15, pix4cell: number = 4, zoomLevel: number = 4): Promise<ArrayBuffer> {
 		const id = this.nextId++;
 		// pick a worker round-robin
 		const worker = this.workers[this.nextWorker];
@@ -90,7 +91,7 @@ export class WorkerPool {
 			}, 100);
 		});
 
-		const req: ChunkRequest = { id, seed, x, z, y, pix4cell };
+		const req: ChunkRequest = { id, seed, x, z, y, pix4cell, zoomLevel };
 
 		return new Promise<ArrayBuffer>((resolve, reject) => {
 			waitForReady().then(() => {

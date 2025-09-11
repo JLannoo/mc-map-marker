@@ -47,7 +47,7 @@ export default function Leaflet() {
 		// Check if the map is already initialized (mostly for StrictMode in dev)
 		if (containerRef?.current && !containerRef.current.hasChildNodes()) {
 			const m = leaflet.map(containerRef.current, MAP_CONFIG)
-				.setView([0,0], 0);
+				.setView([0,0], 4);
             
 			TILE_LAYER.addTo(m);
 

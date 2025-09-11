@@ -22,9 +22,10 @@ export const ChunkGridLayer = L.GridLayer.extend({
 		const seed = 1234567890123456789n;
 		const chunkX = coords.x;
 		const chunkZ = -coords.y;
+		const zoom = coords.z;		
 
 		// Fire request: when data arrives, paint the canvas
-		pool.request(seed, chunkX, chunkZ).then((buffer) => {
+		pool.request(seed, chunkX, chunkZ, 4, 4, zoom).then((buffer) => {
 			// TODO: Investigate how to improve performance.
 			// Potential:
 			// - Use OffscreenCanvas in the worker to draw directly there (not supported in all browsers)

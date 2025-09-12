@@ -29,7 +29,6 @@ unsigned char* fetchChunkData(uint64_t seed, int chunkX, int chunkZ, int y, int 
     Range range;
     // Possible scale values [1, 4, 16, 64]
     range.scale = mapZoomLevel(zoomLevel);
-    printf("Using scale: %d for zoom level: %d\n", range.scale, zoomLevel);
 
     // Chunk coordinates to block coordinates
     range.x = chunkX * 16;
@@ -49,8 +48,6 @@ unsigned char* fetchChunkData(uint64_t seed, int chunkX, int chunkZ, int y, int 
 
     int imgWidth = range.sx * pix4cell;
     int imgHeight = range.sz * pix4cell;
-
-    
 
     unsigned char biomeColors[256][3];
     initBiomeColors(biomeColors);

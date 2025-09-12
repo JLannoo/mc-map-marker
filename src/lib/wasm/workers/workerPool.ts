@@ -1,31 +1,18 @@
 import ChunkgenWorker from './chunkgen.worker?worker';
+import type { ChunkgenWorkerMap } from './chunkgen.worker';
 
-type ChunkRequest = {
-  id: number;
-  seed: bigint;
-  x: number;
-  z: number;
-  y?: number;
-  pix4cell?: number;
-  zoomLevel?: number;
-};
-
-type ChunkResponse = {
-  id: number;
-  buffer?: ArrayBuffer;
-  error?: string;
-};
+import type { BaseMessageMap, MessageNames, RequestPayload, ResponsePayload, WorkerRequest } from './workers';
 
 /**
  * A pool to manage request to web workers.
  * Each worker is expected to respond with messages containing the same `id` as the request.
  */
-export class WorkerPool {
+export class WorkerPool<M extends BaseMessageMap> {
 	private workers: Worker[] = [];
 	private ready: boolean[] = [];
 	private nextWorker = 0;
 	private nextId = 1;
-	private pending = new Map<number, (res: ChunkResponse) => void>();
+	private pending = new Map<number, (res: unknown) => void>();
 
 	constructor(workerConstructor: new (options?: WorkerOptions) => Worker, size: number = navigator.hardwareConcurrency || 4) {
 		for (let i = 0; i < size; i++) {
@@ -35,13 +22,13 @@ export class WorkerPool {
 
 				worker.onmessage = (ev: MessageEvent) => {
 					const data = ev.data as unknown;
-					
+
 					if (this.isReadyMessage(data)) {
 						this.ready[i] = true;
 						return;
 					}
 
-					this.onMessage(data as ChunkResponse);
+					this.onMessage(data);
 				};
 
 				this.workers.push(worker);
@@ -51,11 +38,18 @@ export class WorkerPool {
 		}
 	}
 
-	private onMessage(msg: ChunkResponse) {
-		const callback = this.pending.get(msg.id);
-		if (callback) {
-			this.pending.delete(msg.id);
-			callback(msg);
+	private onMessage(msg: unknown) {
+		if(!msg) return;
+
+		// Match response to pending request by id
+		if (typeof msg === 'object' && 'id' in msg && typeof msg.id === 'number') {
+			const id = msg.id;
+			const callback = this.pending.get(id);
+
+			if (callback) {
+				this.pending.delete(id);
+				callback(msg);
+			}
 		}
 	}
 
@@ -63,14 +57,12 @@ export class WorkerPool {
 		return typeof v === 'object' && v !== null && ('ready' in v);
 	}
 
-	// TODO: support generic requests instead of just chunk requests
-	request(seed: bigint, x: number, z: number, y: number = 15, pix4cell: number = 4, zoomLevel: number = 4): Promise<ArrayBuffer> {
+	// Generic request by message key K in MessageMap M
+	request<K extends MessageNames<M>>(key: K, payload: RequestPayload<M, K>): Promise<ResponsePayload<M, K>> {
 		const id = this.nextId++;
-		// pick a worker round-robin
 		const worker = this.workers[this.nextWorker];
 		this.nextWorker = (this.nextWorker + 1) % this.workers.length;
 
-		// wait for at least one worker to be ready
 		const timeoutMs = 2000;
 		const waitForReady = () => new Promise<void>((resolve) => {
 			const start = performance.now();
@@ -91,15 +83,28 @@ export class WorkerPool {
 			}, 100);
 		});
 
-		const req: ChunkRequest = { id, seed, x, z, y, pix4cell, zoomLevel };
+		const req = { id, type: key as string, payload } as WorkerRequest<K & string, RequestPayload<M, K>>;
 
-		return new Promise<ArrayBuffer>((resolve, reject) => {
+		return new Promise<ResponsePayload<M, K>>((resolve, reject) => {
 			waitForReady().then(() => {
 				// post after wait
 				this.pending.set(id, (res) => {
-					if (res.error) reject(new Error(res.error));
-					else if (res.buffer) resolve(res.buffer);
-					else reject(new Error('empty response'));
+					if (typeof res === 'object' && res !== null) {
+						const r = res as Record<string, unknown>;						
+
+						// Check if worker errored
+						if ('error' in r && typeof r.error === 'string') {
+							reject(new Error(r.error));
+							return;
+						}
+
+						if ('payload' in r) {
+							resolve(r.payload as ResponsePayload<M, K>);
+							return;
+						}
+					}
+					
+					reject(new Error('empty response'));
 				});
 
 				try {
@@ -119,8 +124,8 @@ export class WorkerPool {
 }
 
 // Single shared pool instance helper
-let chunkgenPool: WorkerPool | null = null;
-export function getChunkgenWorkerPool(): WorkerPool {
+let chunkgenPool: WorkerPool<ChunkgenWorkerMap> | null = null;
+export function getChunkgenWorkerPool(): WorkerPool<ChunkgenWorkerMap> {
 	if (!chunkgenPool) {
 		chunkgenPool = new WorkerPool(ChunkgenWorker, navigator.hardwareConcurrency || 4);
 	}

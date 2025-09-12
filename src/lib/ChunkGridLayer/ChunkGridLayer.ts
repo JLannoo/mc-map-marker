@@ -22,10 +22,10 @@ export const ChunkGridLayer = L.GridLayer.extend({
 		const seed = 1234567890123456789n;
 		const chunkX = coords.x;
 		const chunkZ = -coords.y;
-		const zoom = coords.z;		
+		const zoom = coords.z;
 
 		// Fire request: when data arrives, paint the canvas
-		pool.request(seed, chunkX, chunkZ, 4, 4, zoom).then((buffer) => {
+		pool.request('generateBiomes', { seed, x: chunkX, z: chunkZ, y: 0, pix4cell: 4, zoomLevel: zoom }).then((buffer) => {
 			// TODO: Investigate how to improve performance.
 			// Potential:
 			// - Use OffscreenCanvas in the worker to draw directly there (not supported in all browsers)
@@ -59,8 +59,9 @@ export const ChunkGridLayer = L.GridLayer.extend({
 			}
 
 			done(undefined, canvas);
-		}).catch((_err) => {
+		}).catch((err) => {
 			// fallback to checker if worker fails
+			console.warn('[ChunkGridLayer] Tile generation failed', err);
 			const checker = _generateChekeredTile(coords, LEAFLET.TILE_SIZE);
 			ctx.drawImage(checker, 0, 0);
 
@@ -92,7 +93,7 @@ function _generateChekeredTile(coords: L.Coords, size: number): HTMLCanvasElemen
 	ctx.strokeRect(0, 0, size, size);    
 
 	ctx.fillStyle = 'black';
-	ctx.font = '32px Arial';
+	ctx.font = '12px Arial';
 	ctx.textAlign = 'center';
 	ctx.textBaseline = 'middle';
 	ctx.fillText(`(${chunkZ}, ${chunkX}, ${chunkY})`, size / 2, size / 2);

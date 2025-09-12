@@ -9,7 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 
 export default function App() {
-	const { map } = useLeafletStore();
+	const map = useLeafletStore((state) => state.map);
+	const pointerPos = useLeafletStore((state) => state.pointerPos);
     
 	return (
 		<div>
@@ -50,11 +51,11 @@ export default function App() {
 							>
 								<div className="flex gap-4 justify-between items-center">
 									<Label htmlFor="x">X</Label>
-									<Input name="x" id="x" type="number" defaultValue={0} />
+									<Input name="x" id="x" type="number" defaultValue={0} step={0.001}/>
 								</div>
 								<div className="flex gap-4 justify-between items-center">
 									<Label htmlFor="z">Z</Label>
-									<Input name="z" id="z" type="number" defaultValue={0} />
+									<Input name="z" id="z" type="number" defaultValue={0} step={0.001}/>
 								</div>
 								<div className="flex gap-4 justify-between items-center">
 									<Label htmlFor="state">State</Label>
@@ -69,6 +70,22 @@ export default function App() {
 					</TabsContent>
 				</Card>
 			</Tabs>
+
+			<Card className='absolute bottom-4 left-4 w-50 z-1000'>
+				<CardContent>
+					<div className='flex flex-col gap-2'>
+						<div className='flex justify-between flex-col'>
+							<span className='font-bold'>Pointer:</span>
+							<span className='flex ml-2 justify-between'><b>X:</b> {pointerPos?.x}</span>
+							<span className='flex ml-2 justify-between'><b>Z:</b> {pointerPos?.z}</span>
+						</div>
+						<div className='flex justify-between'>
+							<span className='font-bold'>Zoom:</span>
+							<span>{map?.getZoom()}</span>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
 		</div>
 	);
 }

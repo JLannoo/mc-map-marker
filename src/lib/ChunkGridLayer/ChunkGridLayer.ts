@@ -46,6 +46,18 @@ export const ChunkGridLayer = L.GridLayer.extend({
 			ctx.imageSmoothingEnabled = false;
 			ctx.drawImage(canvas, 0, 0, 64, 64, 0, 0, LEAFLET.TILE_SIZE, LEAFLET.TILE_SIZE);
 
+			const showGrid = true;
+			if(showGrid) {
+				ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+				ctx.strokeRect(0, 0, LEAFLET.TILE_SIZE, LEAFLET.TILE_SIZE);    
+				ctx.font = '12px Arial';
+				ctx.textAlign = 'left';
+				ctx.textBaseline = 'top';
+				ctx.strokeStyle = '';
+				ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+				ctx.fillText(`(${chunkX},${-chunkZ})`, 1, 1);
+			}
+
 			done(undefined, canvas);
 		}).catch((_err) => {
 			// fallback to checker if worker fails

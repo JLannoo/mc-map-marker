@@ -9,10 +9,14 @@ import './leaflet.overrides.css';
 import { ChunkGridLayer } from '../../lib/ChunkGridLayer/ChunkGridLayer';
 
 import { create } from 'zustand';
+import { Coords } from '@/lib/utils';
 
 interface LeafletStore {
     map: leaflet.Map | null;
     containerRef: RefObject<HTMLDivElement | null>;
+
+	pointerPos: { x: number; z: number } | null;
+	setPointerPos: (pos: { x: number; z: number } | null) => void;
 
     setMap: (map: leaflet.Map) => void;
 }
@@ -23,6 +27,9 @@ interface LeafletStore {
 export const useLeafletStore = create<LeafletStore>((set) => ({
 	map: null,
 	setMap: (map: leaflet.Map) => set({ map }),
+
+	pointerPos: null,
+	setPointerPos: (pos: { x: number; z: number } | null) => set({ pointerPos: pos }),
 
 	containerRef: createRef<HTMLDivElement>(),
 }));
@@ -41,7 +48,7 @@ const MAP_CONFIG: leaflet.MapOptions = {
  * Generated using {@link ChunkGridLayer} to display map tiles.
  */
 export default function Leaflet() {
-	const { containerRef, setMap, map } = useLeafletStore();
+	const { containerRef, setMap, map, setPointerPos } = useLeafletStore();
     
 	function initializeMap() {
 		// Check if the map is already initialized (mostly for StrictMode in dev)
@@ -60,6 +67,19 @@ export default function Leaflet() {
 	}
 
 	useEffect(initializeMap, []);
+	useEffect(() => {
+		if (!map) return;
+		const onMouseMove = (e: leaflet.LeafletMouseEvent) => {
+			const latLng = e.latlng;
+			setPointerPos(Coords.mapToWorld(latLng.lng, latLng.lat));
+		};
+
+		map.on('mousemove', onMouseMove);
+
+		return () => {
+			map.off('mousemove', onMouseMove);
+		};
+	}, [map]);
 
 	return (
 		<div ref={containerRef} style={{ height: '100vh', width: '100vw' }}></div>

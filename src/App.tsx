@@ -7,6 +7,7 @@ import { Input } from './components/ui/input';
 import { Label } from './components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
+import { Coords } from './lib/utils';
 
 export default function App() {
 	const map = useLeafletStore((state) => state.map);
@@ -43,19 +44,21 @@ export default function App() {
 									const state = String(formData.get('state'));
 
 									if (map) {
-										const marker = leaflet.marker([-z, x]).addTo(map);
-										marker.bindPopup(`<div><strong>State:</strong> ${state}<br/><strong>Coordinates:</strong> (${x}, ${z})</div>`).openPopup();
+										const coords = Coords.worldToMap(x, z);
+										const marker = leaflet.marker([coords.y, coords.x]).addTo(map);
+										marker.bindPopup(`<div><strong>State:</strong> ${state}<br/><strong>Coordinates:</strong> (${x}, ${z})</div>`);
+										map.setView([coords.y, coords.x], map.getZoom(), {animate: true, duration: 0.5});
 										form.reset();
 									}
 								}}
 							>
 								<div className="flex gap-4 justify-between items-center">
 									<Label htmlFor="x">X</Label>
-									<Input name="x" id="x" type="number" defaultValue={0} step={0.001}/>
+									<Input name="x" id="x" type="number" defaultValue={0} />
 								</div>
 								<div className="flex gap-4 justify-between items-center">
 									<Label htmlFor="z">Z</Label>
-									<Input name="z" id="z" type="number" defaultValue={0} step={0.001}/>
+									<Input name="z" id="z" type="number" defaultValue={0} />
 								</div>
 								<div className="flex gap-4 justify-between items-center">
 									<Label htmlFor="state">State</Label>

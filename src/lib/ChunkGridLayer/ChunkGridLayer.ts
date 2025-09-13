@@ -3,6 +3,7 @@ import L from 'leaflet';
 import { getChunkgenWorkerPool } from '../wasm/workers/workerPool';
 
 import LEAFLET from '@/consts/LEAFLET';
+import { Coords } from '@/lib/utils';
 
 /**
  * A Leaflet GridLayer that generates and displays map tiles, using the Cubiomes WASM module, on a canvas.
@@ -20,9 +21,8 @@ export const ChunkGridLayer = L.GridLayer.extend({
 
 		const pool = getChunkgenWorkerPool();
 		const seed = 1234567890123456789n;
-		const chunkX = coords.x;
-		const chunkZ = -coords.y;
-		const zoom = coords.z;
+		const { x: chunkX, z: chunkZ } = Coords.tileToChunk(coords);
+		const zoom = coords.z;		
 
 		// Fire request: when data arrives, paint the canvas
 		pool.request('generateBiomes', { seed, x: chunkX, z: chunkZ, y: 0, pix4cell: 4, zoomLevel: zoom }).then((buffer) => {
@@ -55,7 +55,7 @@ export const ChunkGridLayer = L.GridLayer.extend({
 				ctx.textBaseline = 'top';
 				ctx.strokeStyle = '';
 				ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-				ctx.fillText(`(${chunkX},${-chunkZ})`, 1, 1);
+				ctx.fillText(`(${chunkX},${chunkZ})`, 1, 1);
 			}
 
 			done(undefined, canvas);
@@ -83,9 +83,8 @@ function _generateChekeredTile(coords: L.Coords, size: number): HTMLCanvasElemen
 	const ctx = canvas.getContext('2d');
 	if (!ctx) return canvas;
 
-	const chunkX = coords.x;
+	const { x: chunkX, z: chunkZ } = Coords.tileToChunk(coords);
 	const chunkY = coords.y;
-	const chunkZ = coords.z;
     
 	ctx.fillStyle = (Math.abs(chunkX % 2) === Math.abs(chunkY % 2)) ? '#e0e0e0' : '#c0c0c0';
 	ctx.fillRect(0, 0, size, size);

@@ -6,7 +6,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
 	// Global ignore patterns
-	globalIgnores(['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**', '**/public/wasm/**']),
+	globalIgnores(['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**', '**/public/wasm/**', '**/lib/wasm/*.js']),
 	{ 
 		files: ['**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'], 
 		plugins: { js }, 

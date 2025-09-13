@@ -45,9 +45,9 @@ export default function App() {
 
 									if (map) {
 										const coords = Coords.worldToMap(x, z);
-										const marker = leaflet.marker([coords.y, coords.x]).addTo(map);
+										const marker = leaflet.marker(coords).addTo(map);
 										marker.bindPopup(`<div><strong>State:</strong> ${state}<br/><strong>Coordinates:</strong> (${x}, ${z})</div>`);
-										map.setView([coords.y, coords.x], map.getZoom(), {animate: true, duration: 0.5});
+										map.setView(coords, map.getZoom(), {animate: true, duration: 0.5});
 										form.reset();
 									}
 								}}

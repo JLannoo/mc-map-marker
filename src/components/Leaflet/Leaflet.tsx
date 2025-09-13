@@ -70,8 +70,8 @@ export default function Leaflet() {
 	useEffect(() => {
 		if (!map) return;
 		const onMouseMove = (e: leaflet.LeafletMouseEvent) => {
-			const latLng = e.latlng;
-			setPointerPos(Coords.mapToWorld(latLng.lng, latLng.lat));
+			const coords = Coords.mapToWorld(e.latlng.lng, e.latlng.lat);
+			setPointerPos(coords);
 		};
 
 		map.on('mousemove', onMouseMove);

@@ -18,10 +18,6 @@ export type ChunkgenWorkerMap = {
 		}>;
 		response: WorkerResponse<ArrayBuffer> | WorkerErrorResponse;
 	},
-	'test': {
-		request: WorkerRequest<'test', { text: string }>;
-		response: WorkerResponse<string> | WorkerErrorResponse;
-	}
 }
 
 // notify main thread that worker (and wasm module) is initialized and ready to accept requests

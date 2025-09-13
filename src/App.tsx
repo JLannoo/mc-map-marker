@@ -1,6 +1,7 @@
 import leaflet from 'leaflet';
 
-import Leaflet, { useLeafletStore } from './components/Leaflet/Leaflet';
+import Leaflet from './components/Leaflet/Leaflet';
+import { useLeafletStore } from './stores/LeafletStore';
 
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';

@@ -58,7 +58,8 @@ unsigned char* fetchChunkData(uint64_t seed, int chunkX, int chunkZ, int y, int 
         free(biomeIds);
         return NULL;
     }
-    biomesToImage(rgb, biomeColors, biomeIds, range.sx, range.sz, pix4cell, 0);
+    // Flip the image vertically so that north is at the top
+    biomesToImage(rgb, biomeColors, biomeIds, range.sx, range.sz, pix4cell, 1);
 
     free(biomeIds);
     

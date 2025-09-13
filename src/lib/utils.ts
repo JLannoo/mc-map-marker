@@ -11,10 +11,11 @@ import L from 'leaflet';
 
 function convertMapCoordsToWorldCoords(x: number, y: number): { x: number; z: number } {
 	return {
+		// Map coord system: Latitude increases upwards, Longitude increases rightwards
+		// World coord system: X increases rightwards, Z increases downwards
+		// Therefore, world Z = -map Y
 		x: Math.floor(x * LEAFLET.TILE_SIZE),
-		// Keep the same sign convention used by other converters.
-		// Tile -> chunk uses z = -tile.y, so map->world should NOT pre-flip the sign here.
-		z: Math.floor(y * LEAFLET.TILE_SIZE),
+		z: -Math.floor(y * LEAFLET.TILE_SIZE),
 	};
 };
 
@@ -25,25 +26,16 @@ function convertWorldCoordsToMapCoords(x: number, z: number): L.LatLng {
 	);
 }
 
-/**
- * Helpers for converting between Leaflet tile coordinates and world chunk coordinates.
- *
- * Leaflet tile coords (L.Coords) use y increasing downwards. The project's world Z
- * increases in the opposite direction, so the conversion flips the sign on Y when
- * converting to/from world chunk Z.
- */
 function tileCoordsToChunkCoords(tile: L.Coords): { x: number; z: number } {
-	// Tile coords are integral tile indices; convert to chunk indices by
-	// taking the tile X/Y and flipping Y's sign to become world Z.
 	return {
 		x: Math.floor(tile.x),
-		z: Math.floor(-tile.y),
+		z: Math.floor(tile.y),
 	};
 }
 
 function chunkCoordsToTilePoint(chunkX: number, chunkZ: number): L.Point {
 	// Reverse of above: tile Y = -chunkZ
-	return L.point(chunkX, -chunkZ);
+	return L.point(chunkX, chunkZ);
 }
 
 export const Coords = {

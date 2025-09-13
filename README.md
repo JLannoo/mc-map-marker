@@ -23,6 +23,10 @@ git clone --recurse-submodules https://github.com/JLannoo/mc-map-marker.git
     ```sh
     emmake make
     ```
+    or
+    ```sh
+    npm run make
+    ```
 
 - **Start the development server:**
   ```sh
@@ -39,15 +43,18 @@ git clone --recurse-submodules https://github.com/JLannoo/mc-map-marker.git
 ### WASM
   - If you use VSCode: when you install Emscripten, make sure you add the `${emscripten_root}/upstream/emscripten/system/include` folder to your workspace's includePath in `c_cpp_properties.json`. This will make VSCode aware of the Emscripten-specific headers.
   - Bindings must be renamed if the function name changes in the C source file.
-  - Declare modules extending `window` for Typescript to be able to see them.
+  - For the JS module to find the WASM binary, the must share the same base name and be in the same directory.
   - The JS/WASM bindings consumed by the frontend are under `src/lib/wasm/` (for example `cubiomes.js`, `cubiomes.wasm`, and `cubiomes.d.ts`). When you rebuild the WASM, ensure these files are updated and the `.d.ts` matches the exported function names.
-    - They get store there so Vite can bundle them correctly with the rest of the frontend code.
+    - They get stored there so Vite can bundle them correctly with the rest of the frontend code.
 
 ### Map and coordinate conventions
 
-- Minecraft has the origin (0,0) at the middle, while Leaflet has it at the bottom-left (y towards the top), so the MC z coordinate must be flipped.  
-- Leaflet uses (x, y) coordinates while Minecraft uses (x, z), because Y is vertical, but while rendering a plane we only care about a single value.  
-The mapping ends up being: MC (x, z) -> Leaflet (-z, x)
+- Leaflet uses (latitude, longitude) coordinates, which map to 
+(y, x) in a Cartesian system. Latitude increases upwards, Longitude increases rightwards.
+- Minecraft uses (x, z) coordinates for horizontal planes, with y being vertical height. X increases rightwards, Z increases downwards.
+- Minecraft negative Z (up) is north.
+- **So, the mapping ends up being: MC (x, z) <-> Leaflet (-lat, lng)**.
+- The conversion functions are in [`src/lib/utils.ts`](./src/lib/utils.ts).
 
 ### Dev / Debugging tips
 
